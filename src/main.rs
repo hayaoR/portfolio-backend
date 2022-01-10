@@ -1,6 +1,8 @@
 use axum::{http::Method, routing::get, Router};
-use portfolio::routes::{about::about, career::careers, skill::skills};
 use tower_http::cors::{CorsLayer, Origin};
+
+use portfolio::routes::{about::about, career::careers, skill::skills};
+use portfolio::configuration::get_configuration;
 
 #[tokio::main]
 async fn main() {
@@ -8,6 +10,9 @@ async fn main() {
         std::env::set_var("RUST_LOG", "info");
     }
     tracing_subscriber::fmt::init();
+
+    let configuration = get_configuration().expect("Failed to read configuration.");
+    let address = format!("127.0.0.1:{}", configuration.application_port);
 
     let app = Router::new()
         .route("/skills", get(skills))
@@ -19,7 +24,7 @@ async fn main() {
                 .allow_methods(vec![Method::GET]),
         );
 
-    axum::Server::bind(&"127.0.0.1:3000".parse().unwrap())
+    axum::Server::bind(&address.parse().unwrap())
         .serve(app.into_make_service())
         .await
         .unwrap();
