@@ -1,15 +1,27 @@
-use axum::Json;
+use axum::{
+    Json,
+    extract::{Extension},
+};
 use serde::Serialize;
+use sqlx::{PgPool};
 
 #[derive(Serialize)]
 pub struct About {
+    id: i32,
     text: String,
 }
 
-pub async fn about() -> Json<About> {
-    let about = About {
-        text: "システム開発会社ではたらくしがない人間。ある程度SEとして経験を積んだあとはITエンジニアとして働いてみたいが適性があまり無い気がする".to_string(),
-    };
-
-    Json(about)
+#[tracing::instrument(name = "reading about data")]
+pub async fn about(Extension(pool): Extension<PgPool>) -> Json<About> {
+    let result = sqlx::query!("select * from about where id = $1", 1).fetch_one(&pool).await;
+    match result {
+        Ok(about) => Json(About{ id: about.id, text: about.description}),
+        Err(err) => {
+            tracing::error!("Failed to read about data {:?}", err);
+            return Json(About{
+                id: 0,
+                text: "".to_string()
+            })
+        }
+    }
 }

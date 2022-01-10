@@ -39,6 +39,14 @@ while ($i -le $max) {
 
 $Env:DATABASE_URL = "postgres://${DB_USER}:${DB_PASSWORD}@localhost:${DB_PORT}/${DB_NAME}"
 sqlx database create
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "sqlx database create throws error"
+    exit
+} 
 sqlx migrate run
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "sqlx migrate run throws error"
+    exit
+} 
 
 Write-Host "Postgres has been migrated, ready to go!"
