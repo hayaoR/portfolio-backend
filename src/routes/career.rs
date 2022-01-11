@@ -1,7 +1,4 @@
-use axum::{
-    Json,
-    extract::{Extension},
-};
+use axum::{extract::Extension, Json};
 use serde::Serialize;
 use sqlx::PgPool;
 
@@ -17,7 +14,8 @@ pub struct Career {
 #[tracing::instrument(name = "reading careers data")]
 pub async fn careers(Extension(pool): Extension<PgPool>) -> Json<Vec<Career>> {
     let result = sqlx::query!("select * from career where userid = $1", 1)
-        .fetch_all(&pool).await;
+        .fetch_all(&pool)
+        .await;
 
     let mut v = vec![];
     match result {
@@ -25,12 +23,18 @@ pub async fn careers(Extension(pool): Extension<PgPool>) -> Json<Vec<Career>> {
             for row in rows {
                 let years_to = match row.years_to {
                     Some(years_to) => years_to.to_string(),
-                    None => "".to_string()
+                    None => "".to_string(),
                 };
-                v.push(Career {id: row.id, name: row.name, years_from: row.years_from.to_string(), years_to: years_to, description: row.description});
+                v.push(Career {
+                    id: row.id,
+                    name: row.name,
+                    years_from: row.years_from.to_string(),
+                    years_to: years_to,
+                    description: row.description,
+                });
             }
             return Json(v);
-        },
+        }
         Err(err) => {
             tracing::error!("Failed to read about data {:?}", err);
             return Json(v);

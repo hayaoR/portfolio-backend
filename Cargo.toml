@@ -33,5 +33,6 @@ features = [
     "postgres",
     "chrono",
     "uuid",
-    "migrate"
+    "migrate",
+    "offline"
 ]

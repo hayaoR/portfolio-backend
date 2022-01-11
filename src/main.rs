@@ -1,9 +1,9 @@
-use axum::{http::Method, routing::get, Router, AddExtensionLayer};
-use tower_http::cors::{CorsLayer, Origin};
+use axum::{http::Method, routing::get, AddExtensionLayer, Router};
 use sqlx::PgPool;
+use tower_http::cors::{CorsLayer, Origin};
 
-use portfolio::routes::{about::about, career::careers, skill::skills};
 use portfolio::configuration::get_configuration;
+use portfolio::routes::{about::about, career::careers, skill::skills};
 
 #[tokio::main]
 async fn main() {
@@ -13,8 +13,7 @@ async fn main() {
     tracing_subscriber::fmt::init();
 
     let configuration = get_configuration().expect("Failed to read configuration.");
-    let connection_pool = PgPool::connect(&configuration.database.connection_string())
-        .await
+    let connection_pool = PgPool::connect_lazy(&configuration.database.connection_string())
         .expect("Failed to connect Postgres.");
     let address = format!("127.0.0.1:{}", configuration.application_port);
 

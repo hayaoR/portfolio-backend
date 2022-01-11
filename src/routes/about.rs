@@ -1,7 +1,4 @@
-use axum::{
-    Json,
-    extract::{Extension},
-};
+use axum::{extract::Extension, Json};
 use serde::Serialize;
 use sqlx::PgPool;
 
@@ -13,15 +10,20 @@ pub struct About {
 
 #[tracing::instrument(name = "reading about data")]
 pub async fn about(Extension(pool): Extension<PgPool>) -> Json<About> {
-    let result = sqlx::query!("select * from about where userid = $1", 1).fetch_one(&pool).await;
+    let result = sqlx::query!("select * from about where userid = $1", 1)
+        .fetch_one(&pool)
+        .await;
     match result {
-        Ok(about) => Json(About{ id: about.id, text: about.description}),
+        Ok(about) => Json(About {
+            id: about.id,
+            text: about.description,
+        }),
         Err(err) => {
             tracing::error!("Failed to read about data {:?}", err);
-            return Json(About{
+            return Json(About {
                 id: 0,
-                text: "".to_string()
-            })
+                text: "".to_string(),
+            });
         }
     }
 }
