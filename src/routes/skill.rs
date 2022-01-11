@@ -1,31 +1,32 @@
-use axum::Json;
+use axum::{
+    Json,
+    extract::{Extension},
+};
 use serde::Serialize;
+use sqlx::PgPool;
 
 #[derive(Serialize)]
 pub struct Skill {
-    id: usize,
+    id: i32,
     title: String,
     content: String,
 }
 
-pub async fn skills() -> Json<Vec<Skill>> {
-    let skills = vec![
-        Skill {
-            id: 1,
-            title: "Rust".to_string(),
-            content: "好きな言語だが使い所が難しい。".to_string(),
+#[tracing::instrument(name = "reading skills data")]
+pub async fn skills(Extension(pool): Extension<PgPool>) -> Json<Vec<Skill>> {
+    let result = sqlx::query!("select * from skill where userid = $1", 1)
+        .fetch_all(&pool).await;
+    let mut v = vec![];
+    match result {
+        Ok(rows) => {
+            for row in rows {
+                v.push(Skill { id: row.id, title: row.title, content: row.content});
+            }
+            return Json(v);
         },
-        Skill {
-            id: 2,
-            title: "Elm".to_string(),
-            content: "好きな言語。ただJavaScriptとの相互作用するところが辛い。".to_string(),
-        },
-        Skill {
-            id: 3,
-            title: "Haskell".to_string(),
-            content: "好きな言語。Haskell力を上げたい".to_string(),
-        },
-    ];
-
-    Json(skills)
+        Err(err) => {
+            tracing::error!("Failed to read about data {:?}", err);
+            return Json(v);
+        } 
+    }
 }

@@ -1,33 +1,39 @@
-use axum::Json;
-use chrono::prelude::*;
+use axum::{
+    Json,
+    extract::{Extension},
+};
 use serde::Serialize;
+use sqlx::PgPool;
 
 #[derive(Serialize)]
 pub struct Career {
-    id: usize,
+    id: i32,
     name: String,
     years_from: String,
     years_to: String,
     description: String,
 }
 
-pub async fn careers() -> Json<Vec<Career>> {
-    let careers = vec![
-        Career {
-            id: 1,
-            name: "ピーマン大学院".to_string(),
-            years_from: Utc.ymd(2019, 4, 1).format("%Y/%m").to_string(),
-            years_to: Utc.ymd(2021, 3, 31).format("%Y/%m").to_string(),
-            description: "ピーマンの栽培法の研究".to_string(),
-        },
-        Career {
-            id: 2,
-            name: "ピーマンシステムズ".to_string(),
-            years_from: Utc.ymd(2021, 4, 1).format("%Y/%m").to_string(),
-            years_to: "".to_string(),
-            description: "ピーマン栽培管理システムの構築PJに従事".to_string(),
-        },
-    ];
+#[tracing::instrument(name = "reading careers data")]
+pub async fn careers(Extension(pool): Extension<PgPool>) -> Json<Vec<Career>> {
+    let result = sqlx::query!("select * from career where userid = $1", 1)
+        .fetch_all(&pool).await;
 
-    Json(careers)
+    let mut v = vec![];
+    match result {
+        Ok(rows) => {
+            for row in rows {
+                let years_to = match row.years_to {
+                    Some(years_to) => years_to.to_string(),
+                    None => "".to_string()
+                };
+                v.push(Career {id: row.id, name: row.name, years_from: row.years_from.to_string(), years_to: years_to, description: row.description});
+            }
+            return Json(v);
+        },
+        Err(err) => {
+            tracing::error!("Failed to read about data {:?}", err);
+            return Json(v);
+        }
+    }
 }

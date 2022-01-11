@@ -32,5 +32,6 @@ features = [
     "macros",
     "postgres",
     "chrono",
+    "uuid",
     "migrate"
 ]

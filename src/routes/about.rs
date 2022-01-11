@@ -3,7 +3,7 @@ use axum::{
     extract::{Extension},
 };
 use serde::Serialize;
-use sqlx::{PgPool};
+use sqlx::PgPool;
 
 #[derive(Serialize)]
 pub struct About {
@@ -13,7 +13,7 @@ pub struct About {
 
 #[tracing::instrument(name = "reading about data")]
 pub async fn about(Extension(pool): Extension<PgPool>) -> Json<About> {
-    let result = sqlx::query!("select * from about where id = $1", 1).fetch_one(&pool).await;
+    let result = sqlx::query!("select * from about where userid = $1", 1).fetch_one(&pool).await;
     match result {
         Ok(about) => Json(About{ id: about.id, text: about.description}),
         Err(err) => {
