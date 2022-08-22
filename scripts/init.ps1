@@ -11,12 +11,12 @@ if ( !(Get-Command sqlx -ea SilentlyContinue) ) {
 }
 
 $DB_USER="postgres"
-$DB_PASSWORD="password"
+$DB_PASSWORD="postgres"
 $DB_NAME="portfolio"
 $DB_PORT="5432"
 
 if (-not $SKIP_DOCKER) {
-    docker run -e POSTGRES_USER=$DB_USER -e POSTGRES_PASSWORD=$DB_PASSWORD -e POSTGRES_DB=$DB_NAME -p "${DB_PORT}:5432" -d postgres postgres -N 1000
+    docker run -e POSTGRES_USER=$DB_USER -e POSTGRES_PASSWORD=$DB_PASSWORD -e POSTGRES_DB=$DB_NAME -p "${DB_PORT}:5432" -d postgres -N 1000
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Docker throws error"
         exit
