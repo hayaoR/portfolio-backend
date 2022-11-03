@@ -1,6 +1,7 @@
-use axum::{http::Method, routing::get, AddExtensionLayer, Router};
+use axum::http::HeaderValue;
+use axum::{http::Method, routing::get, Extension, Router};
 use sqlx::PgPool;
-use tower_http::cors::{CorsLayer, Origin};
+use tower_http::cors::CorsLayer;
 
 use portfolio::configuration::get_configuration;
 use portfolio::routes::{about::about, career::careers, skill::skills};
@@ -23,10 +24,10 @@ async fn main() {
         .route("/careers", get(careers))
         .layer(
             CorsLayer::new()
-                .allow_origin(Origin::exact("http://localhost:8000".parse().unwrap()))
+                .allow_origin("http://localhost:1234".parse::<HeaderValue>().unwrap())
                 .allow_methods(vec![Method::GET]),
         )
-        .layer(AddExtensionLayer::new(connection_pool));
+        .layer(Extension(connection_pool));
 
     axum::Server::bind(&address.parse().unwrap())
         .serve(app.into_make_service())

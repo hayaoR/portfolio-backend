@@ -29,15 +29,15 @@ pub async fn careers(Extension(pool): Extension<PgPool>) -> Json<Vec<Career>> {
                     id: row.id,
                     name: row.name,
                     years_from: row.years_from.to_string(),
-                    years_to: years_to,
+                    years_to,
                     description: row.description,
                 });
             }
-            return Json(v);
+            Json(v)
         }
         Err(err) => {
             tracing::error!("Failed to read about data {:?}", err);
-            return Json(v);
+            Json(v)
         }
     }
 }

@@ -13,19 +13,18 @@ path = "src/main.rs"
 name = "portfolio"
 
 [dependencies]
-axum = "0.4"
-hyper = { version = "0.14.14", features = ["full"] }
-tokio = { version = "1.13.0", features = ["full"] }
-tower = "0.4.10"
+axum = "0.5"
+hyper = { version = "0.14", features = ["full"] }
+tokio = { version = "1", features = ["full"] }
+tower = "0.4"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 serde = { version = "1", features = ["derive"]}
-tower-http = { version = "0.2.0", features = ["cors"] }
-chrono = "0.4.19"
+tower-http = { version = "0.3", features = ["cors"] }
 config = "0.11.0"
 
 [dependencies.sqlx]
-version = "0.5"
+version = "0.6"
 default-features = false
 features = [
     "runtime-tokio-native-tls",

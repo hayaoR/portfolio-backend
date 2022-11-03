@@ -20,10 +20,10 @@ pub async fn about(Extension(pool): Extension<PgPool>) -> Json<About> {
         }),
         Err(err) => {
             tracing::error!("Failed to read about data {:?}", err);
-            return Json(About {
+            Json(About {
                 id: 0,
                 text: "".to_string(),
-            });
+            })
         }
     }
 }

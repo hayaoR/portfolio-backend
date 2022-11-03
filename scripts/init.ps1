@@ -49,4 +49,6 @@ if ($LASTEXITCODE -ne 0) {
     exit
 } 
 
+psql.exe -h "localhost" -U $DB_USER -p $DB_PORT -d $DB_NAME -f "./scripts/init.sql"
+
 Write-Host "Postgres has been migrated, ready to go!"

@@ -24,11 +24,11 @@ pub async fn skills(Extension(pool): Extension<PgPool>) -> Json<Vec<Skill>> {
                     content: row.content,
                 });
             }
-            return Json(v);
+            Json(v)
         }
         Err(err) => {
             tracing::error!("Failed to read about data {:?}", err);
-            return Json(v);
+            Json(v)
         }
     }
 }
